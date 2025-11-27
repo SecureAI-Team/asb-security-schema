@@ -1,0 +1,70 @@
+{
+  "schema_version": "asb-sec-0.1",
+  "event_id": "evt-agent-deny-001",
+  "timestamp": "2025-01-01T12:00:04Z",
+  "tenant_id": "tenant-a",
+  "app_id": "support-agent",
+  "env": "prod",
+  "subject": {
+    "user": {
+      "id": "alice",
+      "type": "human",
+      "roles": ["support_engineer"],
+      "groups": ["team-a"],
+      "attributes": {
+        "department": "support",
+        "region": "EU"
+      }
+    },
+    "agent": {
+      "id": "support-bot",
+      "type": "llm_agent",
+      "version": "v1.2.0"
+    },
+    "client": {
+      "ip": "203.0.113.1",
+      "user_agent": "autogen/0.4",
+      "channel": "api"
+    }
+  },
+  "operation": {
+    "category": "agent_tool",
+    "name": "update_ticket",
+    "direction": "input",
+    "request_id": "req-abc-126",
+    "stage": "pre"
+  },
+  "resource": {
+    "agent_tool": {
+      "tool_name": "update_ticket",
+      "tool_category": "ticketing",
+      "target_system": "jira",
+      "args": {
+        "id": "T-2024-002",
+        "status": "resolved",
+        "priority": "critical"
+      }
+    }
+  },
+  "context": {
+    "trace_id": "trace-xyz-004",
+    "span_id": "span-005",
+    "labels": {
+      "source": "autogen",
+      "workflow": "support-triage",
+      "region": "eu-central-1"
+    }
+  },
+  "decision": {
+    "effect": "deny",
+    "applied_policies": [
+      "agent.deny_critical_resolution"
+    ],
+    "actions": [
+      "log_event",
+      "notify_security_team"
+    ],
+    "risk_level": "high",
+    "reason": "Support engineer is not allowed to resolve critical tickets."
+  }
+}
