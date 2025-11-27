@@ -1,9 +1,8 @@
 
----
 
 ## 🇨🇳 `asb-security-schema` – 中文说明 / 规格文档
 
-```markdown
+
 # asb-security-schema
 
 > 面向 LLM、RAG 和 Agent 应用的统一安全事件模型。
