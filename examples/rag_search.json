@@ -1,0 +1,91 @@
+{
+  "schema_version": "asb-sec-0.1",
+  "event_id": "evt-rag-001",
+  "timestamp": "2025-01-01T12:00:02Z",
+  "tenant_id": "tenant-a",
+  "app_id": "kb-copilot",
+  "env": "prod",
+  "subject": {
+    "user": {
+      "id": "alice",
+      "type": "human",
+      "roles": ["support_engineer"],
+      "groups": ["team-a"],
+      "attributes": {
+        "department": "engineering",
+        "region": "EU"
+      }
+    },
+    "agent": {
+      "id": "support-bot",
+      "type": "llm_agent",
+      "version": "v1.2.0"
+    },
+    "client": {
+      "ip": "203.0.113.1",
+      "user_agent": "dify/1.0",
+      "channel": "web"
+    }
+  },
+  "operation": {
+    "category": "rag_search",
+    "name": "search_safe",
+    "direction": "input",
+    "request_id": "req-abc-124",
+    "stage": "pre"
+  },
+  "resource": {
+    "rag": {
+      "query": "latest roadmap for project X",
+      "top_k": 3,
+      "vector_space": "kb-default",
+      "filters": {
+        "project": "X"
+      },
+      "candidates": [
+        {
+          "doc_id": "doc-123",
+          "score": 0.89,
+          "metadata": {
+            "title": "Project X Overview",
+            "owner": "pm-team",
+            "sensitivity": "internal"
+          }
+        },
+        {
+          "doc_id": "doc-999",
+          "score": 0.72,
+          "metadata": {
+            "title": "Project X Strategy",
+            "owner": "leadership",
+            "sensitivity": "secret"
+          }
+        }
+      ]
+    }
+  },
+  "context": {
+    "trace_id": "trace-xyz-002",
+    "span_id": "span-003",
+    "risk_signals": {
+      "anomaly_score": 0.10
+    },
+    "labels": {
+      "source": "langchain",
+      "workflow": "rag-chat",
+      "region": "eu-central-1"
+    }
+  },
+  "decision": {
+    "effect": "deny",
+    "applied_policies": [
+      "rag.deny_secret_docs"
+    ],
+    "actions": [
+      "log_event",
+      "notify_security_team"
+    ],
+    "risk_level": "medium",
+    "reason": "RAG candidates include secret documents for a user without proper clearance."
+  }
+}
