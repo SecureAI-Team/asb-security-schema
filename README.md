@@ -1,7 +1,6 @@
 # ASB Security Schema
 
 > A unified security event model for securing LLM, RAG, and Agent applications.  
-> （面向 LLM / RAG / Agent 应用的统一安全事件模型）
 
 ASB Security Schema defines a **canonical JSON structure** for AI security events:
 
