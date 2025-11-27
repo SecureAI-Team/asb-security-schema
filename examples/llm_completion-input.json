@@ -60,7 +60,7 @@
     "span_id": "span-001",
     "risk_signals": {
       "prompt_injection_score": 0.12,
-      "anomaly_score": 0.03"
+      "anomaly_score": 0.03
     },
     "labels": {
       "source": "dify",
