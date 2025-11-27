@@ -1,30 +1,55 @@
 
+# ASB Security Schema
 
-## 🇨🇳 `asb-security-schema` – 中文说明 / 规格文档
+> 面向 LLM / RAG / Agent 应用的统一安全事件模型。
 
+ASB Security Schema 定义了一套用于 AI 安全事件的 **标准 JSON 结构**，可以用来：
 
-# asb-security-schema
+- 🔒 让 AI 安全策略（OPA / Policy-as-Code）有一个统一、规范的 `input`  
+- 🧾 规范化 **日志与审计事件**，方便对接 EU AI Act、ISO 27001、ISO 42001 以及内部治理  
+- 🧩 适配任意 LLM / RAG / Agent 技术栈：LangChain、Dify、AutoGen、CrewAI、自研应用等
 
-> 面向 LLM、RAG 和 Agent 应用的统一安全事件模型。
+本仓库是一个 **规范仓库（spec repo）**，包含：
 
-`asb-security-schema` 是一个 **规范仓库**，  
-用于描述 AI 系统中的安全相关事件（Security Event）。
+- **Schema 规范文档**（Spec）
+- **JSON Schema**（机器可校验）
+- **示例 events（examples）**
+- **OPA / Rego 策略示例（policies）**
 
-它主要包含：
+运行时网关组件（例如 `asb-secure-gateway`）会以此 Schema 作为 **统一事件模型**。
 
-- 一套通用的 **ASB 安全事件 Schema（ASB Security Schema）**，用于：
-  - LLM 推理（对话 / 补全）
+---
+
+## 快速入口
+
+- 📄 规范：**[ASB Security Event Schema v0.1](spec/asb-security-schema-v0.1.md)**  
+- 🧬 JSON Schema：**[asb-security-schema-v0.1.json](schema/asb-security-schema-v0.1.json)**  
+- 🧪 示例：**[examples/](examples/)** – LLM / RAG / Agent 事件样例  
+- 🧯 策略：**[policies/](policies/)** – OPA / Rego 策略样例  
+
+英文版说明见 **[README.md](README.md)**。
+
+---
+
+## 这是什么？
+
+`asb-security-schema` 是一套用来描述 AI 系统中 **安全相关行为** 的数据模型。
+
+它提供：
+
+- 一套统一的 **ASB 安全事件 Schema**，用于：
+  - LLM 推理（对话 / 补全 / embedding）
   - RAG（检索增强生成）查询
   - Agent 工具 / 动作调用
-- 一组 **JSON 示例**，展示典型事件结构
-- 若干基于 **OPA（Open Policy Agent）** 的策略示例，展示如何消费该 Schema
+- 一组 **JSON 示例**，覆盖典型场景
+- 若干 **OPA / Rego 策略示例**，展示如何消费该 Schema
 
-> 注意：本仓库 **不包含** 实际网关实现。  
-> 像 `asb-secure-gateway` 这样的运行时组件会使用本 Schema 作为：
->
-> - 策略决策（允许 / 拒绝 / 脱敏 / 升级审批）的标准输入
-> - 审计日志和取证分析的统一结构
-> - 合规 / 报表（如 EU AI Act、内部治理）的基础数据模型
+本仓库 **不包含** 实际网关实现。  
+类似 `asb-secure-gateway` 这样的运行时组件，会以本 Schema 作为：
+
+- 策略决策（允许 / 拒绝 / 脱敏 / 升级审批）的标准输入  
+- 审计日志和取证分析的统一结构  
+- 合规与报表（例如 EU AI Act、内部 AI 治理）的数据基础
 
 ---
 
@@ -32,27 +57,29 @@
 
 ASB 安全事件 Schema 的目标是：
 
-1. 为 LLM / RAG / Agent 各类场景提供一个**统一的安全事件表示方式**；
-2. 支持基于 OPA 等引擎的 **Policy-as-Code**，让策略有规范化的 `input` 结构；
-3. 方便将 AI 安全事件导出到 **SIEM / 可观测性 / 审计系统**；
+1. 为 LLM / RAG / Agent 场景提供一套 **统一的安全事件表示方式**；  
+2. 支持基于 OPA 等引擎的 **Policy-as-Code**，让策略有规范化的 `input` 结构；  
+3. 方便将 AI 安全事件导出到 **SIEM / 可观测性 / 审计系统**；  
 4. 同时支持：
-   - **实时防护**（在决策前后产生事件）
-   - **事后分析**（事件中包含完整上下文信息）
+   - **实时防护**（决策前后产生事件）
+   - **事后分析**（事件中保留完整上下文）
+
+它本质上是一个 **数据模型**，而不是完整的安全产品，也不是 WAF / SIEM 的替代品。
 
 ---
 
-## 2. 核心概念
+## 2. 概念模型
 
 Schema 的核心是一个对象：
 
-> **SecurityEvent（安全事件）** – 用一个 JSON 文档描述一次与安全相关的 AI 行为或决策。
+> **SecurityEvent（安全事件）** —— 用一个 JSON 文档描述一次与安全相关的 AI 行为或决策。
 
 每个 `SecurityEvent` 要回答的问题是：
 
-- **谁** 在做这件事？→ `subject`
-- **做了什么操作？** → `operation`
-- **作用在什么对象上？** → `resource`
-- **在什么上下文中？** → `context`
+- **谁** 在发起？→ `subject`  
+- **做了什么操作？** → `operation`  
+- **作用在什么对象上？** → `resource`  
+- **在什么上下文中？** → `context`  
 - **结果如何？风险如何？** → `decision`（可选，用于后置事件）
 
 ---
