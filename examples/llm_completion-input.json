@@ -1,0 +1,71 @@
+{
+  "schema_version": "asb-sec-0.1",
+  "event_id": "evt-llm-input-001",
+  "timestamp": "2025-01-01T12:00:00Z",
+  "tenant_id": "tenant-a",
+  "app_id": "kb-copilot",
+  "env": "prod",
+  "subject": {
+    "user": {
+      "id": "alice",
+      "type": "human",
+      "roles": ["support_engineer"],
+      "groups": ["team-a"],
+      "attributes": {
+        "department": "support",
+        "region": "EU"
+      }
+    },
+    "agent": {
+      "id": "support-bot",
+      "type": "llm_agent",
+      "version": "v1.2.0"
+    },
+    "client": {
+      "ip": "203.0.113.1",
+      "user_agent": "dify/1.0",
+      "channel": "web"
+    }
+  },
+  "operation": {
+    "category": "llm_completion",
+    "name": "chat_completion",
+    "direction": "input",
+    "request_id": "req-abc-123",
+    "stage": "pre",
+    "model": {
+      "name": "gpt-4o",
+      "provider": "openai",
+      "mode": "chat"
+    }
+  },
+  "resource": {
+    "llm": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a helpful assistant for the internal support team."
+        },
+        {
+          "role": "user",
+          "content": "Tell me about project X's roadmap for next quarter."
+        }
+      ],
+      "input_tokens": 64,
+      "output_tokens_estimate": 256
+    }
+  },
+  "context": {
+    "trace_id": "trace-xyz-001",
+    "span_id": "span-001",
+    "risk_signals": {
+      "prompt_injection_score": 0.12,
+      "anomaly_score": 0.03"
+    },
+    "labels": {
+      "source": "dify",
+      "workflow": "kb-chat",
+      "region": "eu-central-1"
+    }
+  }
+}
