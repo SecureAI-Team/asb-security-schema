@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asb-security-schema"
+version = "0.1.0"
+description = "Python helpers and validators for the ASB Security Schema."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "ASB Security", email = "maintainers@asb-security.dev" }]
+keywords = ["llm", "rag", "security", "schema", "opa"]
+license = { text = "MIT License" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = ["jsonschema>=4.22"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3"]
+
+[project.urls]
+Repository = "https://github.com/asb-security/asb-security-schema"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+

@@ -1,0 +1,459 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/asb-security-schema-v0.1.json",
+  "title": "ASB Security Event Schema v0.1",
+  "description": "A unified security event schema for LLM, RAG, and Agent applications.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "asb-sec-0.1",
+      "description": "Version of the ASB Security Schema."
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Globally unique identifier for the event (e.g. UUID)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp in ISO 8601 format."
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "Logical tenant or customer identifier."
+    },
+    "app_id": {
+      "type": "string",
+      "description": "Logical application / project / service identifier."
+    },
+    "env": {
+      "type": "string",
+      "description": "Environment identifier (e.g. dev, test, prod)."
+    },
+    "subject": {
+      "$ref": "#/definitions/Subject"
+    },
+    "operation": {
+      "$ref": "#/definitions/Operation"
+    },
+    "resource": {
+      "$ref": "#/definitions/Resource"
+    },
+    "context": {
+      "$ref": "#/definitions/Context"
+    },
+    "decision": {
+      "$ref": "#/definitions/Decision"
+    }
+  },
+  "required": [
+    "schema_version",
+    "event_id",
+    "timestamp",
+    "subject",
+    "operation",
+    "resource"
+  ],
+  "additionalProperties": true,
+  "definitions": {
+    "Subject": {
+      "type": "object",
+      "description": "Who is performing the action.",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "agent": {
+          "$ref": "#/definitions/Agent"
+        },
+        "client": {
+          "$ref": "#/definitions/Client"
+        }
+      },
+      "additionalProperties": true
+    },
+    "User": {
+      "type": "object",
+      "description": "Human or service user identity.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable user identifier."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of user.",
+          "enum": [
+            "human",
+            "service"
+          ]
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Logical roles of the user."
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Group identifiers."
+        },
+        "attributes": {
+          "type": "object",
+          "description": "Additional key/value attributes for the user.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "Agent": {
+      "type": "object",
+      "description": "AI agent / bot identity.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Logical agent identifier."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of agent (e.g., llm_agent, rpa_bot, workflow, other)."
+        },
+        "version": {
+          "type": "string",
+          "description": "Agent implementation or configuration version."
+        }
+      },
+      "additionalProperties": true
+    },
+    "Client": {
+      "type": "object",
+      "description": "Technical client information.",
+      "properties": {
+        "ip": {
+          "type": "string",
+          "description": "Client IP address."
+        },
+        "user_agent": {
+          "type": "string",
+          "description": "HTTP User-Agent or similar."
+        },
+        "channel": {
+          "type": "string",
+          "description": "Access channel.",
+          "enum": [
+            "web",
+            "api",
+            "cli",
+            "batch",
+            "other"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "Operation": {
+      "type": "object",
+      "description": "What is being done.",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Operation category.",
+          "enum": [
+            "llm_completion",
+            "rag_search",
+            "agent_tool",
+            "admin",
+            "other"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Logical operation name."
+        },
+        "direction": {
+          "type": "string",
+          "description": "Direction of the operation.",
+          "enum": [
+            "input",
+            "output",
+            "both"
+          ]
+        },
+        "request_id": {
+          "type": "string",
+          "description": "Identifier correlating events for the same request."
+        },
+        "stage": {
+          "type": "string",
+          "description": "Stage within the operation lifecycle.",
+          "enum": [
+            "pre",
+            "post"
+          ]
+        },
+        "model": {
+          "$ref": "#/definitions/Model"
+        }
+      },
+      "required": [
+        "category",
+        "name",
+        "direction"
+      ],
+      "additionalProperties": true
+    },
+    "Model": {
+      "type": "object",
+      "description": "LLM model information for llm_completion operations.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Model name (e.g., gpt-4o)."
+        },
+        "provider": {
+          "type": "string",
+          "description": "Model provider (e.g., openai, azure, local)."
+        },
+        "mode": {
+          "type": "string",
+          "description": "Model mode.",
+          "enum": [
+            "chat",
+            "completion",
+            "embedding",
+            "other"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": true
+    },
+    "Resource": {
+      "type": "object",
+      "description": "What is being operated on. Shape depends on operation.category.",
+      "properties": {
+        "llm": {
+          "$ref": "#/definitions/LLMResource"
+        },
+        "rag": {
+          "$ref": "#/definitions/RAGResource"
+        },
+        "agent_tool": {
+          "$ref": "#/definitions/AgentToolResource"
+        }
+      },
+      "additionalProperties": true
+    },
+    "LLMResource": {
+      "type": "object",
+      "description": "Resource fields for llm_completion operations.",
+      "properties": {
+        "messages": {
+          "type": "array",
+          "description": "Ordered list of chat messages.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string",
+                "description": "Role of the message author.",
+                "enum": [
+                  "system",
+                  "user",
+                  "assistant",
+                  "tool",
+                  "other"
+                ]
+              },
+              "content": {
+                "type": "string",
+                "description": "Message content."
+              }
+            },
+            "required": [
+              "role",
+              "content"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "input_tokens": {
+          "type": "number",
+          "description": "Number of input tokens."
+        },
+        "output_tokens_estimate": {
+          "type": "number",
+          "description": "Estimated number of output tokens (pre-decision)."
+        },
+        "output_tokens": {
+          "type": "number",
+          "description": "Actual number of output tokens (post-decision)."
+        }
+      },
+      "additionalProperties": true
+    },
+    "RAGResource": {
+      "type": "object",
+      "description": "Resource fields for rag_search operations.",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "User query."
+        },
+        "top_k": {
+          "type": "number",
+          "description": "Number of top candidates requested."
+        },
+        "vector_space": {
+          "type": "string",
+          "description": "Logical index / collection name."
+        },
+        "filters": {
+          "type": "object",
+          "description": "Additional filter conditions.",
+          "additionalProperties": true
+        },
+        "candidates": {
+          "type": "array",
+          "description": "List of candidate documents before policy filtering.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "doc_id": {
+                "type": "string",
+                "description": "Document identifier."
+              },
+              "score": {
+                "type": "number",
+                "description": "Relevance or similarity score."
+              },
+              "metadata": {
+                "type": "object",
+                "description": "Document metadata.",
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "doc_id"
+            ],
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": true
+    },
+    "AgentToolResource": {
+      "type": "object",
+      "description": "Resource fields for agent_tool operations.",
+      "properties": {
+        "tool_name": {
+          "type": "string",
+          "description": "Logical tool name exposed to the agent."
+        },
+        "tool_category": {
+          "type": "string",
+          "description": "Tool category (e.g., ticketing, database, filesystem)."
+        },
+        "target_system": {
+          "type": "string",
+          "description": "Identifier of the target system."
+        },
+        "args": {
+          "type": "object",
+          "description": "Arguments passed to the tool.",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "tool_name"
+      ],
+      "additionalProperties": true
+    },
+    "Context": {
+      "type": "object",
+      "description": "Additional context for tracing and risk assessment.",
+      "properties": {
+        "trace_id": {
+          "type": "string",
+          "description": "Distributed tracing identifier."
+        },
+        "span_id": {
+          "type": "string",
+          "description": "Span identifier."
+        },
+        "risk_signals": {
+          "type": "object",
+          "description": "Scores from other detectors / models.",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "description": "Free-form string labels.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "Decision": {
+      "type": "object",
+      "description": "Policy decision and associated actions.",
+      "properties": {
+        "effect": {
+          "type": "string",
+          "description": "Decision effect.",
+          "enum": [
+            "allow",
+            "deny",
+            "mask",
+            "review"
+          ]
+        },
+        "applied_policies": {
+          "type": "array",
+          "description": "List of applied policy identifiers.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "description": "List of actions taken as part of the decision.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "risk_level": {
+          "type": "string",
+          "description": "Overall risk level.",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "description": "Human-readable explanation of the decision."
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}
+

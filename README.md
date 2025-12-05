@@ -24,6 +24,48 @@ For a Chinese overview, see **[README_zh.md](README_zh.md)**.
 
 ---
 
+## SDKs & Libraries
+
+Need to integrate the schema directly in your app? Use the lightweight SDKs included here.
+
+- **Python** – `pip install git+https://github.com/asb-security/asb-security-schema.git#subdirectory=python`  
+  ```python
+  from asb_security_schema import SecurityEventBuilder, validate_event
+
+  builder = SecurityEventBuilder(
+      subject={"user": {"id": "user-123", "type": "human"}},
+      operation={
+          "category": "llm_completion",
+          "name": "chat",
+          "direction": "input",
+          "model": {"name": "gpt-4o"},
+      },
+      resource={"llm": {"messages": [{"role": "user", "content": "hello"}]}},
+  )
+  event = builder.build()  # validate_event(event) already runs by default
+  ```
+
+- **Go** – `go get github.com/asb-security/asb-security-schema/go/securityschema`  
+  ```go
+  import "github.com/asb-security/asb-security-schema/go/securityschema"
+
+  payload := map[string]any{
+      "schema_version": securityschema.SchemaVersion,
+      "event_id":       "evt-123",
+      "timestamp":      "2024-01-01T00:00:00Z",
+      "subject": map[string]any{"user": map[string]any{"id": "user-123", "type": "human"}},
+      "operation": map[string]any{"category": "llm_completion", "name": "chat", "direction": "input"},
+      "resource": map[string]any{"llm": map[string]any{"messages": []any{map[string]any{"role": "user", "content": "hello"}}}},
+  }
+  if err := securityschema.Validate(payload); err != nil {
+      panic(err)
+  }
+  ```
+
+> Maintainers: run `python -m scripts.sync_schema_assets` whenever the canonical schema changes to keep the SDKs in sync.
+
+---
+
 ## What is this?
 
 `asb-security-schema` is a **data model** for describing security-relevant actions in AI systems.
